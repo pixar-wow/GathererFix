@@ -1,0 +1,10 @@
+## Interface: 40000
+## Title: |cff00E5EEGathererFix
+## DefaultState: Enabled
+## Author:  Pixar - Sinestra
+## LoadOnDemand: 0
+## Version: 1.6.5
+## Notes: Fix Gatherer & Carbonite tracking
+
+GathererFixFrame.xml
+GathererFix.lua

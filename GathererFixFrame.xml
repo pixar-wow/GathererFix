@@ -1,0 +1,30 @@
+﻿<Ui xmlns="http://www.blizzard.com/wow/ui/" 
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ 
+ ..\..\FrameXML\UI.xsd">
+ <Script File="GathererFix.lua"/>
+  <Frame name="GathererFixFrame">
+   <Scripts>
+    <OnLoad>
+		
+		DEFAULT_CHAT_FRAME:AddMessage("GathererFix Actif .");
+		
+		local function callFctIn(waitingTime,fct)
+		   local f_tmp = GathererFixFrame;
+		   local wait_time=0
+		   local function onUpdate(self,elapsed)
+			  wait_time = wait_time + elapsed
+			  if wait_time >= waitingTime then
+				f_tmp:SetScript("OnUpdate", nil) -- STOP even if error when fct called
+				fct()
+			  end
+		   end
+		   f_tmp:SetScript("OnUpdate", onUpdate);
+		end
+		
+		callFctIn(5,Fix_Gatherer_Carbonite) -- Call Fix_Gatherer_Carbonite after Gatherer or Carbonite Loaded
+		
+    </OnLoad>
+   </Scripts>
+  </Frame>
+</Ui> 
