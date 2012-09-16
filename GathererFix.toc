@@ -1,4 +1,4 @@
-## Interface: 40000
+## Interface: 40300
 ## Title: |cff00E5EEGathererFix
 ## DefaultState: Enabled
 ## Author:  Pixar - Sinestra

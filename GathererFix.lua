@@ -15,12 +15,7 @@ local function tableMerge(t1, t2)
    return t1
 end
 
-local function isHarvestSpell(name)
-   local HerboSpellName= GetSpellInfo(2366)
-   local MiningSpellName = GetSpellInfo(2575)
-   local ArchaeologySpellName = GetSpellInfo(73979)
-   return name==HerboSpellName or name==MiningSpellName or name==ArchaeologySpellName
-end
+
 
 -- see specialChar_hashMap for special char supported
 local function fixSpecialChar(str)
@@ -45,90 +40,7 @@ local function fixSpecialChar(str)
 end
 
 
-function Fix_Gatherer_Carbonite()
-   if Gatherer~= nil and Gatherer.Event~= nil and Gatherer.Event.OnSwag ~= nil then --Gatherer loaded
-      
-      --backup var
-      local oldGatherer_Event_OnEvent = Gatherer.Event.OnEvent
-      
-      -- add new event to GathererFrame
-      GathererFrame:RegisterEvent("UNIT_SPELLCAST_SENT")
-      
-      -- Mod the Gatherer Event catch
-      function Gatherer.Event.OnEvent( event, ... )
-         if (event == "UNIT_SPELLCAST_SENT" ) then
-            local Unit,Spell_name = ...
-            if Unit=="player" and isHarvestSpell(Spell_name) then
-               LibSwag.SetTooltip()
-               local tooltip = LibSwag.GetLastTip()
-               if not ( tooltip ) then return end
-               local tip = tooltip.tip
-               local objId = Gatherer.Nodes.Names[tip]
-               if ( objId ) then
-                  -- We have a mouseover on a valid object
-                  local gType = Gatherer.Nodes.Objects[objId]
-                  Gatherer.Api.AddGather(objId, gType, nil, nil, 0, {}, false)
-               else -- try a fix
-                  if not region == "frFR" then
-                     return --not supported
-                  end
-                  tip = fixSpecialChar(tip) -- Fix sinestra 
-                  objId = Gatherer.Nodes.Names[tip]
-                  if ( objId ) then
-                     -- We have a mouseover on a valid object
-                     local gType = Gatherer.Nodes.Objects[objId]
-                     Gatherer.Api.AddGather(objId, gType, nil, nil, 0, {}, false)
-                  else
-                     return-- not a valid/referenced object
-                  end
-               end
-            else
-               return
-            end
-         else 
-            oldGatherer_Event_OnEvent(event, ...)
-         end
-      end
-      
-      --Overwrite Gatherer fct
-      function Gatherer.Event.OnSwag(lootType, lootTable, coinAmount, extraData)
-         Gatherer.Util.Debug("Gatherer.Event.OnSwag", lootType)
-         if (lootType ~= "KILL") then
-            LibSwag.SetTooltip()
-            local tooltip = LibSwag.GetLastTip()
-            if not ( tooltip ) then return end
-            local tip = tooltip.tip
-            if region == "frFR" then
-               tip = fixSpecialChar(tip) -- Fix sinestra 
-            end
-            
-            local objId = Gatherer.Nodes.Names[tip]
-            if ( objId ) then
-               -- We have a mouseover on a valid object
-               local gType = Gatherer.Nodes.Objects[objId]
-               Gatherer.Api.AddGather(objId, gType, nil, nil, 0, {}, false)
-            else -- try a fix
-               if not region == "frFR" then
-                  return --not supported
-               end
-               tip = fixSpecialChar(tip) -- Fix sinestra 
-               objId = Gatherer.Nodes.Names[tip]
-               if ( objId ) then
-                  -- We have a mouseover on a valid object
-                  local gType = Gatherer.Nodes.Objects[objId]
-                  Gatherer.Api.AddGather(objId, gType, nil, nil, 0, {}, false)
-               else
-                  return-- not a valid/referenced object
-               end
-            end
-         end
-      end
-      --register again
-      local hookFunc = function( ... ) Gatherer.Event.OnSwag(...) end
-      LibSwag.RegisterHook("Gatherer", hookFunc, hookFunc)
-      LibSwag.Init()
-   end
-   
+function Fix_Gatherer_Carbonite()  
    if Nx~= nil and Nx.GaI1 ~= nil then --Carbonite loaded
       Nx.GaI1={[" "]={["Art"]={0,"Trade_Archaeology","Artifact","Artifact","Artifact","Artifact"},["Everfrost"]={0,"spell_shadow_teleport",NXlEverfrost,NXlEverfrost,NXlEverfrost,NXlEverfrost},["Gas"]={0,"inv_gizmo_zapthrottlegascollector",NXlGas,NXlGas,NXlGas,NXlGas},},["H"]={{340,"INV_Misc_Herb_AncientLichen","Ancient Lichen","Urflechte","Lichen ancien","Liquen antiguo"},{220,"INV_Misc_Herb_13","Arthas' Tears","Arthas\226\128\153 Tr\195\164nen","Larmes d'Arthas ","L\195\161grimas de Arthas"},{300,"INV_Misc_Herb_17","Black Lotus","Schwarzer Lotus","Lotus noir","Loto negro"},{235,"INV_Misc_Herb_14","Blindweed","Blindkraut","Aveuglette","Carolina"},{1,"INV_Misc_Herb_11a","Bloodthistle","Blutdistel","Chardon sanglant","Cardo de sangre"},{70,"INV_Misc_Root_01","Briarthorn","Wilddornrose","Eglantine","Brezospina"},{100,"INV_Misc_Herb_01","Bruiseweed","Beulengras","Doulourante","Hierba cardenal"},{270,"INV_Misc_Herb_DreamFoil","Dreamfoil","Traumblatt","Feuiller\195\170ve","Hojasue\195\177o"},{315,"INV_Misc_Herb_Dreamingglory","Dreaming Glory","Traumwinde","Glaurier","Gloria de ensue\195\177o"},{15,"INV_Misc_Herb_07","Earthroot","Erdwurzel","Terrestrine","Ra\195\173z de tierra"},{160,"INV_Misc_Herb_12","Fadeleaf","Blassblatt","P\195\162lerette","P\195\161lida"},{300,"INV_Misc_Herb_Felweed","Felweed","Teufelsgras","Gangrelette","Hierba vil"},{205,"INV_Misc_Herb_19","Firebloom","Feuerbl\195\188te","Fleur de feu","Flor de Fuego"},{335,"INV_Misc_Herb_Flamecap","Flame Cap","Flammenkappe","Chapeflamme","Copo de llamas"},{245,"INV_Mushroom_08","Ghost Mushroom","Geisterpilz","Champignon fant\195\180me","Champi\195\177\195\179n fantasma"},{260,"INV_Misc_Herb_SansamRoot","Golden Sansam","Goldener Sansam","Sansam dor\195\169","Sansam dorado"},{170,"INV_Misc_Herb_15","Goldthorn","Golddorn","Dor\195\169pine","Espina de oro"},{120,"INV_Misc_Dust_02","Grave Moss","Grabmoos","Tombeline","Musgo de tumba"},{250,"INV_Misc_Herb_16","Gromsblood","Gromsblut","Gromsang","Gromsanguina"},{290,"INV_Misc_Herb_IceCap","Icecap","Eiskappe","Chapeglace","Setelo"},{185,"INV_Misc_Herb_08","Khadgar's Whisker","Khadgars Schnurrbart","Moustache de Khadgar","Mostacho de Khadgar"},{125,"INV_Misc_Herb_03","Kingsblood","K\195\182nigsblut","Sang-royal","Sangrerregia"},{150,"INV_Misc_Root_02","Liferoot","Lebenswurz","Viet\195\169rule","Vidarra\195\173z"},{50,"Spell_Shadow_DeathAndDecay","Mageroyal","Magusk\195\182nigskraut","Mage royal","Marregal"},{375,"INV_Misc_Herb_Manathistle","Mana Thistle","Manadistel","Chardon de mana","Cardo de man\195\161"},{280,"INV_Misc_Herb_MountainSilverSage","Mountain Silversage","Bergsilbersalbei","Sauge-argent des montagnes","Salviargenta de monta\195\177a"},{350,"INV_Misc_Herb_Netherbloom","Netherbloom","Netherbl\195\188te","N\195\169antine","Flor abisal"},{350,"INV_Enchant_DustSoul","Netherdust Bush","Netherstaubbusch","Buisson de pruin\195\169ante","Arbusto de polvo abisal"},{365,"INV_Misc_Herb_Nightmarevine","Nightmare Vine","Alptraumranke","Cauchemardelle","Vid Pesadilla"},{1,"INV_Misc_Flower_02","Peacebloom","Friedensblume","Pacifique","Flor de paz"},{285,"inv_misc_herb_plaguebloom","Sorrowmoss","Trauermoos","Chagrinelle","Musgopena"},{210,"INV_Misc_Herb_17","Purple Lotus","Lila Lotus","Lotus pourpre","Loto c\195\161rdeno"},{325,"INV_Misc_Herb_Ragveil","Ragveil","Zottelkappe","Voile-mis\195\168re","Velada"},{1,"INV_Misc_Herb_10","Silverleaf","Silberblatt","Feuillargent","Hojaplata"},{85,"INV_Misc_Herb_11","Stranglekelp","W\195\188rgetang","Etouffante","Alga estranguladora"},{230,"INV_Misc_Herb_18","Sungrass","Sonnengras","Soleillette","Solea"},{325,"INV_Misc_Herb_Terrocone","Terocone","Terozapfen","Teroc\195\180ne","Teropi\195\177a"},{115,"INV_Misc_Flower_01","Wild Steelbloom","Wildstahlblume","Aci\195\169rite sauvage","Ac\195\169rita salvaje"},{195,"inv_misc_flower_03","Dragon's Teeth","Drachenzahn","Dents de dragon","Dientes de drag\195\179n"},{1,"INV_Mushroom_02","Glowcap","Gl\195\188hkappe","Chapeluisant","Fluochampi\195\177\195\179n"},{350,"inv_misc_herb_goldclover","Goldclover","Goldklee","Tr\195\168fle dor\195\169","Tr\195\169bol de oro"},{385,"inv_misc_herb_talandrasrose","Talandra's Rose","Talandras Rose","Rose de Talandra","Rosa de Talandra"},{400,"inv_misc_herb_evergreenmoss","Adder's Tongue","Schlangenzunge","Verp\195\169renne","Lengua de v\195\173boris"},{400,"inv_misc_herb_goldclover","Frozen Herb","Gefrorenes Kraut","Herbe gel\195\169e","Hierba de escarcha"},{400,"inv_misc_herb_tigerlily","Tiger Lily","Tigerlilie","Lys tigr\195\169","Lirio atigrado"},{425,"inv_misc_herb_whispervine","Lichbloom","Lichbl\195\188te","Fleur-de-liche","Flor ex\195\161nime"},{435,"inv_misc_herb_icethorn","Icethorn","Eisdorn","Glac\195\169pine","Espina de hielo"},{450,"inv_misc_herb_frostlotus","Frost Lotus","Frostlotus","Lotus givr\195\169","Loto de escarcha"},{360,"inv_misc_herb_11a","Firethorn","Feuerdorn","Epine de feu","Espino de fuego"},{425,"inv_misc_herb_azsharasveil","Azshara's Veil","Azsharas Schleier","Voile d'Azshara","Velo de Azshara"},{425,"inv_misc_herb_cinderbloom","Cinderbloom","Aschenbl\195\188te","Cendrelle","Flor de ceniza"},{425,"inv_misc_herb_stormvine","Stormvine","Sturmwinde","Vignetincelle","Vign\195\169tincelle","Vi\195\177\aviento"},{475,"inv_misc_herb_heartblossom","Heartblossom","Herzbl\195\188te","Petale de coeur","P\195\169tale de c\195\166ur","Flor de coraz\195\179n"},{500,"inv_misc_herb_whiptail","Whiptail","Gertenrohr","Fouettine","Col\195\161tigo"},{525,"inv_misc_herb_twilightjasmine","Twilight Jasmine","Schattenjasmin","Jasmin crepusculaire","Jazm\195\173n Crepuscular"},},["M"]={{325,"INV_Ore_Adamantium","Adamantite Deposit","Adamantitvorkommen","Gisement d'adamantite","Dep\195\179sito de adamantita"},{375,"INV_Misc_Gem_01","Ancient Gem Vein","Uralte Edelsteinader","Ancien filon de gemmes","Fil\195\179n de gemas antiguo"},{1,"INV_Ore_Copper_01","Copper Vein","Kupferader","Filon de cuivre","Fil\195\179n de cobre"},{230,"INV_Ore_Mithril_01","Dark Iron Deposit","Dunkeleisenvorkommen","Gisement de sombrefer","Dep\195\179sito de hierro negro"},{275,"INV_Ore_FelIron","Fel Iron Deposit","Teufelseisenvorkommen","Gisement de gangrefer","Dep\195\179sito de hierro vil"},{155,"INV_Ore_Copper_01","Gold Vein","Goldader","Filon d'or","Fil\195\179n de oro"},{65,"INV_Ore_Thorium_01","Incendicite Mineral Vein","Pyrophormineralvorkommen","Filon d'incendicite","Fil\195\179n de incendicita"},{150,"INV_Ore_Mithril_01","Indurium Mineral Vein","Induriummineralvorkommen","Filon d'indurium","Fil\195\179n de indurio"},{125,"INV_Ore_Iron_01","Iron Deposit","Eisenvorkommen","Gisement de fer","Dep\195\179sito de hierro"},{375,"INV_Ore_Khorium","Khorium Vein","Khoriumader","Filon de khorium","Fil\195\179n de korio"},{305,"INV_Stone_15","Large Obsidian Chunk","Gro\195\159er Obsidianbrocken","Grand morceau d'obsidienne","Trozo de obsidiana grande"},{75,"INV_Ore_Thorium_01","Lesser Bloodstone Deposit","Geringes Blutsteinvorkommen","Gisement de pierre de sang inf\195\169rieure","Dep\195\179sito de sangrita inferior"},{175,"INV_Ore_Mithril_02","Mithril Deposit","Mithrilvorkommen","Gisement de mithril","Dep\195\179sito de mitril"},{275,"INV_Ore_Ethernium_01","Nethercite Deposit","Netheritvorkommen","Gisement de n\195\169anticite","Dep\195\179sito de abisalita"},{350,"INV_Ore_Adamantium","Rich Adamantite Deposit","Reiches Adamantitvorkommen","Riche gisement d'adamantite","Dep\195\179sito rico en adamantita"},{255,"INV_Ore_Thorium_02","Rich Thorium Vein","Reiche Thoriumader","Riche filon de thorium","Fil\195\179n de torio enriquecido"},{75,"INV_Stone_16","Silver Vein","Silberader","Filon d'argent","Fil\195\179n de plata"},{305,"INV_Misc_StoneTablet_01","Small Obsidian Chunk","Kleiner Obsidianbrocken","Petit morceau d'obsidienne","Trozo de obsidiana peque\195\177o"},{230,"INV_Ore_Thorium_02","Small Thorium Vein","Kleine Thoriumader","Petit filon de thorium","Fil\195\179n peque\195\177o de torio"},{65,"INV_Ore_Tin_01","Tin Vein","Zinnader","Filon d'\195\169tain","Fil\195\179n de esta\195\177o"},{230,"INV_Ore_TrueSilver_01","Truesilver Deposit","Echtsilbervorkommen","Gisement de vrai-argent","Dep\195\179sito de veraplata"},{350,"inv_ore_cobalt","Cobalt Deposit","Kobaltvorkommen","Gisement de cobalt","Dep\195\179sito de cobalto"},{375,"inv_ore_cobalt","Rich Cobalt Deposit","Reiches Kobaltvorkommen","Riche gisement de cobalt","Dep\195\179sito de cobalto rico"},{400,"inv_ore_saronite_01","Saronite Deposit","Saronitvorkommen","Gisement de saronite","Dep\195\179sito de saronita"},{425,"inv_ore_saronite_01","Rich Saronite Deposit","Reiches Saronitvorkommen","Riche gisement de saronite","Dep\195\179sito de saronita rico"},{450,"inv_ore_platinum_01","Titanium Vein","Titanader","Veine de titane","Fil\195\179n de titanio"},{425,"item_elementiumore","Obsidium Deposit","Obsidiumvorkommen","Gisement d'obsidium","Morceau d'obsidium","Dep\195\179sito de obsidium"},{450,"item_elementiumore","Rich Obsidium Deposit","Reiches Obsidiumvorkommen","Enorme bloc d'obsidienne","Dep\195\179sito de obsidium rico"},{475,"item_pyriumore","Elementium Vein","Elementiumader","Filon d'elementium","Filon d\195\169l\195\169mentium","Fil\195\179n de elementium"},{500,"item_pyriumore","Rich Elementium Vein","Reiche Elementiumader","Riche filon d'elementium","Riche filon d'\195\169l\195\169mentium","Filon d'elementium","Fil\195\179n de elementium rico"},{525,"inv_ore_arcanite_01","Pyrite Deposit","Pyritvorkommen","Gisement de pyrite","Dep\195\179sito de pirita"},{525,"inv_ore_arcanite_01","Rich Pyrite Deposit","Reiches Pyritvorkommen","Riche gisement de pyrite","Dep\195\179sito de pirita rico"},}
       }
